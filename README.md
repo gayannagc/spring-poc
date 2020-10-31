@@ -1,3 +1,3 @@
 # spring-poc
 
-spring reaserch work and their proof of concepts
+spring research work and their proof of concepts
