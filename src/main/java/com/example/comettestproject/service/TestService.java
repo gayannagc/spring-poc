@@ -3,12 +3,14 @@ package com.example.comettestproject.service;
 import com.example.comettestproject.client.TestClient1;
 import com.example.comettestproject.client.TestClient2;
 import com.example.comettestproject.client.TestClient3;
-import com.example.comettestproject.dto.CommonAdaptorResp;
-import com.example.comettestproject.dto.Result;
+import com.example.comettestproject.dto.*;
 import com.example.comettestproject.dto.tokenDto.JWTToken;
 import com.example.comettestproject.mapper.Mapper;
 import com.example.comettestproject.repository.CacheRepo2;
 import com.example.comettestproject.util.exception.BaseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.Document;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -335,6 +338,27 @@ public class TestService {
                 .thenCompose(s -> CompletableFuture.supplyAsync(() -> s + " World"));
 
         return ResponseEntity.status(HttpStatus.OK).body(completableFuture.get());
+    }
+    ObjectMapper om = new ObjectMapper();
+    XmlMapper mapper = new XmlMapper();
+
+    public ResponseEntity<String> getXml() throws JsonProcessingException {
+        SampleXmlObject sampleXmlObject = new SampleXmlObject();
+        sampleXmlObject.setStringField("string");
+        sampleXmlObject.setStringField("integer");
+        Map<String,String> innerMap = new HashMap<>();
+        innerMap.put("v11:name","name");
+        innerMap.put("V11:value","value");
+        sampleXmlObject.setListField(Arrays.asList(innerMap,innerMap));
+        sampleXmlObject.setTimestampField(new Timestamp(new Date().getTime()));
+        SoapBody soapBody = new SoapBody();
+        XmlHeader xmlHeader = new XmlHeader();
+        soapBody.setXmlHeader(xmlHeader);
+        soapBody.setSampleXmlObject(sampleXmlObject);
+        String str = mapper.writeValueAsString(soapBody);
+        String prefix = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:req=\"http://schemas.xl.co.id/cle/namespace/Public/Common/RequestHeader.xsd\" xmlns:v1=\"http://schemas.xl.co.id/common/CommonResponse/V1.0\" xmlns:v11=\"http://schemas.xl.co.id/esb/payloads/Bil/SMSSurvey/V1.0\">\n";
+        String postFix = "</soapenv:Envelope>";
+        return ResponseEntity.status(200).body(prefix + str + postFix);
     }
 }
 

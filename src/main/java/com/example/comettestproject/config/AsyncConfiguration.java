@@ -11,12 +11,6 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class AsyncConfiguration {
 
-//    @Bean
-//    public Executor asyncExecutor() {
-//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-//        return executor;
-//    }
-
     @Bean
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -27,18 +21,4 @@ public class AsyncConfiguration {
         executor.initialize();
         return executor;
     }
-
-    // Define a Spring bean of type TestAsyncClazz
-//    @Bean
-//    public TestClient1 testClient1() {
-//        return new TestClient1();
-//    }
-//    @Bean
-//    public TestClient2 testClient2() {
-//        return new TestClient2();
-//    }
-//    @Bean
-//    public TestClient3 testClient3() {
-//        return new TestClient3();
-//    }
 }

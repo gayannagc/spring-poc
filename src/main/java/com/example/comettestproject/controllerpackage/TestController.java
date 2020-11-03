@@ -8,6 +8,7 @@ import com.example.comettestproject.dto.tokenDto.JWTToken;
 import com.example.comettestproject.entity.Role;
 import com.example.comettestproject.service.TestService;
 import com.example.comettestproject.service.TestStringService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -185,6 +186,11 @@ public class TestController {
     @GetMapping("/get-list")
     public ResponseEntity<List<String>> getUnitTesting() throws ExecutionException, InterruptedException {
         return testService.testMethod();
+    }
+
+    @GetMapping("/get-xml")
+    public ResponseEntity<String> getXml() throws JsonProcessingException {
+        return testService.getXml();
     }
 
 //    @GetMapping("get-role/{roleId}")
