@@ -11,7 +11,10 @@ public class Constants {
     public static final String MENU_ID_ERROR = "multiple menu id reference error";
     public static final String PERMISSION_NOT_FOUND = "permission not found";
     public static final String ROLE_NOT_FOUND = "role not found";
-
+    public static final String V11="v11:";
+    public static final String NAME = "name";
+    public static final String TYPE = "TYPE";
+    public static final String VALUE = "value";
     ;
 
     private Constants(){}

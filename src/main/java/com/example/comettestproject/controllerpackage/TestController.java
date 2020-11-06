@@ -16,6 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -189,8 +193,13 @@ public class TestController {
     }
 
     @GetMapping("/get-xml")
-    public ResponseEntity<String> getXml() throws JsonProcessingException {
+    public ResponseEntity<String> getXml() throws IOException, XMLStreamException, JAXBException {
         return testService.getXml();
+    }
+
+    @PostMapping("/get-sms-xml")
+    public ResponseEntity<String> getSmsXml(@RequestBody Interaction interaction) throws IOException, XMLStreamException, JAXBException {
+        return testService.smsProcessor(interaction,"");
     }
 
 //    @GetMapping("get-role/{roleId}")

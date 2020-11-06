@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Body>
+        <ns0:Header xmlns:ns0="http://schemas.xl.co.id/cle/namespace/Public/Common/RequestHeader.xsd">
+            <ns0:ApplicationID>svcBilSMSSurveyV1.0</ns0:ApplicationID>
+            <ns0:ReqID/>
+            <ns0:UUID/>
+            <ns0:ESBUUID>ChannelServices-4_162086165_1560932462436</ns0:ESBUUID>
+            <ns0:SOAPAction>/Services/jmsEP/opSendNotif</ns0:SOAPAction>
+            <ns0:ServiceID>svcBilSMSSurvey</ns0:ServiceID>
+            <ns0:OperationID>opSendNotif</ns0:OperationID>
+            <ns0:ChannelID>SmartClientHandlerV1</ns0:ChannelID>
+            <ns0:ComponentName>BusinessServices</ns0:ComponentName>
+            <ns0:Hostname>CBTCNBSOA-ESB33</ns0:Hostname>
+            <ns0:TimestampIN>2019-06-19T15:21:02.435+07:00</ns0:TimestampIN>
+            <ns0:TimestampOUT>2019-06-19T15:21:06.576+07:00</ns0:TimestampOUT>
+            <ns0:TimeDuration>4141</ns0:TimeDuration>
+            <ns1:CommonResponse xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns0="http://schemas.xl.co.id/cle/namespace/Public/Common/RequestHeader.xsd" xmlns:ns1="http://schemas.xl.co.id/common/CommonResponse/V1.0">
+                <ns1:ResponseCode>00</ns1:ResponseCode>
+            </ns1:CommonResponse>
+        </ns0:Header>
+        <ns0:opSendNotifRs xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns0="http://schemas.xl.co.id/esb/payloads/Bil/SMSSurvey/V1.0">
+            <ns0:STATUS>Seberapa mungkin Anda merekomendasikan layanan pelanggan XL kepada teman / kerabat ? Balas dgn angka 0-10. 0 = yang terendah dan 10 = yang tertinggi. GRATIS</ns0:STATUS>
+        </ns0:opSendNotifRs>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

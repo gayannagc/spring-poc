@@ -4,13 +4,19 @@ import com.example.comettestproject.client.TestClient1;
 import com.example.comettestproject.client.TestClient2;
 import com.example.comettestproject.client.TestClient3;
 import com.example.comettestproject.dto.*;
+import com.example.comettestproject.dto.smssurvey.*;
 import com.example.comettestproject.dto.tokenDto.JWTToken;
 import com.example.comettestproject.mapper.Mapper;
 import com.example.comettestproject.repository.CacheRepo2;
+import com.example.comettestproject.util.constants.Constants;
 import com.example.comettestproject.util.exception.BaseException;
+import com.example.comettestproject.util.resultenum.ResponseCodeEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.sun.org.apache.xerces.internal.parsers.XMLDocumentParser;
+import com.sun.org.apache.xerces.internal.xni.parser.XMLInputSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +24,16 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.Document;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.*;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -243,6 +258,83 @@ public class TestService {
             throw new BaseException("mapper errror");
         }
     }
+    XmlMapper xmlMapper = new XmlMapper();
+
+    public ResponseEntity<String> smsProcessor(Interaction interaction, String cacheId) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(xmlMapper.writeValueAsString(sumsSurvey(interaction)));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.OK).body(ex.getMessage());
+        }
+    }
+
+    public SmsSurveyEnv sumsSurvey(Interaction interaction) throws BaseException {
+        try {
+            SmsSurveyEnv smsSurveyEnv = new SmsSurveyEnv("http://schemas.xmlsoap.org/soap/envelope/","http://schemas.xl.co.id/cle/namespace/Public/Common/RequestHeader.xsd","http://schemas.xl.co.id/common/CommonResponse/V1.0","http://schemas.xl.co.id/esb/payloads/Bil/SMSSurvey/V1.0");
+            smsSurveyEnv.setXmlHeader(headerCreator());
+            smsSurveyEnv.setSmsSurveyBody(bodyCreator(interaction));
+            return smsSurveyEnv;
+        }catch (Exception ex){
+            throw new BaseException(ex.getMessage(), ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(), HttpStatus.INTERNAL_SERVER_ERROR,ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(),ex.getStackTrace());
+        }
+    }
+
+    private SmsSurveyBody bodyCreator(Interaction interaction) throws BaseException {
+        try {
+            SmsSurveyBody smsSurveyBody = new SmsSurveyBody();
+            smsSurveyBody.setSmsSurveyHeader(bodyHeaderCreator());
+            smsSurveyBody.setSmsSurveyRq(surveyReqCreator(interaction));
+            return smsSurveyBody;
+        }catch (Exception ex){
+            throw new BaseException(ex.getMessage(), ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(), HttpStatus.INTERNAL_SERVER_ERROR,ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(),ex.getStackTrace());
+
+        }
+    }
+
+    private SmsSurveyRq surveyReqCreator(Interaction interaction) throws BaseException {
+        try {
+            SmsSurveyRq smsSurveyRq = new SmsSurveyRq();
+            smsSurveyRq.setMsisdn(interaction.getMsisdn());
+            Calendar c= Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+            Date now = new Date();
+            smsSurveyRq.setTimeStamp(sdf.format(now));
+            smsSurveyRq.setReason1(interaction.getInteractionItems().iterator().next().getReason1());
+            smsSurveyRq.setReason2(interaction.getInteractionItems().iterator().next().getReason2());
+            smsSurveyRq.setReason3(interaction.getInteractionItems().iterator().next().getReason3());
+            //set supervisor
+            //set work group
+            smsSurveyRq.setCreatedBy(interaction.getCreatedBy());
+            smsSurveyRq.setFullName(interaction.getCreatedBy());
+            smsSurveyRq.setDirection(interaction.getDirection().toString());
+            Map<String,String> nameValuePair = new HashMap<>();
+            nameValuePair.put(Constants.V11 + Constants.NAME,Constants.TYPE);
+            nameValuePair.put(Constants.V11 + Constants.VALUE,interaction.getType().toString());
+            smsSurveyRq.setNameValuePairs(Arrays.asList(nameValuePair));
+            return smsSurveyRq;
+        }catch (Exception ex){
+            throw new BaseException(ex.getMessage(), ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(), HttpStatus.INTERNAL_SERVER_ERROR,ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(),ex.getStackTrace());
+        }
+    }
+
+    private SmsSurveyHeader bodyHeaderCreator() throws BaseException {
+        try {
+            SmsSurveyHeader smsSurveyHeader = new SmsSurveyHeader("svcBilSMSSurveyV1.0","JMSInstance01.XL.BIL.SMSSURVEY.V1_0.REQ");
+            return smsSurveyHeader;
+        }catch (Exception ex){
+            throw new BaseException(ex.getMessage(), ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(), HttpStatus.INTERNAL_SERVER_ERROR,ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(),ex.getStackTrace());
+
+        }
+    }
+
+    private SmsSurveySoapHeader headerCreator() throws BaseException {
+        try {
+            SmsSurveySoapHeader smsSurveySoapHeader = new SmsSurveySoapHeader();
+            return smsSurveySoapHeader;
+        }catch (Exception ex){
+            throw new BaseException(ex.getMessage(), ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(), HttpStatus.INTERNAL_SERVER_ERROR,ResponseCodeEnum.EXCEPTION_MAPPER_LAYER.description(),ex.getStackTrace());
+        }
+    }
 
 
 
@@ -342,7 +434,39 @@ public class TestService {
     ObjectMapper om = new ObjectMapper();
     XmlMapper mapper = new XmlMapper();
 
-    public ResponseEntity<String> getXml() throws JsonProcessingException {
+    public ResponseEntity<String> getXml() throws IOException, XMLStreamException, JAXBException {
+
+        XMLInputFactory xif = XMLInputFactory.newFactory();
+        xif.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
+        XMLStreamReader xsr = xif.createXMLStreamReader(new FileReader("src/main/resources/input.xml"));
+        Reader reader = new StringReader("");
+        XMLStreamReader xsrNew = xif.createXMLStreamReader(reader);
+
+        XMLDocumentParser xmlDocumentParser =  new XMLDocumentParser();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        mapper.configure(DeserializationFeature.NA, Boolean.FALSE);
+
+        xsr.nextTag(); // Advance to Envelope tag
+        String localName1 = xsr.getLocalName();
+        xsr.nextTag(); // Advance to Body tag
+        String localName2 = xsr.getLocalName();
+        xsr.nextTag(); // Advance to LoginResponse tag
+//        xsr.nextTag(); // Advance to LoginResult tag
+
+
+        SoapResponseHeader soapResponseHeader =  mapper.readValue(xsr,SoapResponseHeader.class);
+
+
+//        JAXBContext jc = JAXBContext.newInstance(SoapResponseHeader.class);
+//        Unmarshaller unmarshaller = jc.createUnmarshaller();
+//        JAXBElement<SoapResponseHeader> je = unmarshaller.unmarshal(xsr, SoapResponseHeader.class);
+//        SoapResponseHeader soapResponseHeader = je.getValue();
+//        LoginResult loginResult = je.getValue();
+
+//        System.out.println(je.getName());
+//        System.out.println(je.getValue());
+//        System.out.println(loginResult.getErrorMessage());
+
         SampleXmlObject sampleXmlObject = new SampleXmlObject();
         sampleXmlObject.setStringField("string");
         sampleXmlObject.setStringField("integer");
@@ -355,10 +479,12 @@ public class TestService {
         XmlHeader xmlHeader = new XmlHeader();
         soapBody.setXmlHeader(xmlHeader);
         soapBody.setSampleXmlObject(sampleXmlObject);
-        String str = mapper.writeValueAsString(soapBody);
+        SoapRequest soapRequest = new SoapRequest();
+        soapRequest.setSoapBody(soapBody);
+        String str = mapper.writeValueAsString(soapRequest);
         String prefix = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:req=\"http://schemas.xl.co.id/cle/namespace/Public/Common/RequestHeader.xsd\" xmlns:v1=\"http://schemas.xl.co.id/common/CommonResponse/V1.0\" xmlns:v11=\"http://schemas.xl.co.id/esb/payloads/Bil/SMSSurvey/V1.0\">\n";
         String postFix = "</soapenv:Envelope>";
-        return ResponseEntity.status(200).body(prefix + str + postFix);
+        return ResponseEntity.status(200).body(str);
     }
 }
 
